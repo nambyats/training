@@ -1,0 +1,23 @@
+For implementing AWS Patch Manager across accounts, you don't necessarily need VPC peering or a Transit Gateway (TGW) for the solution to work. The combination of a VPC endpoint and a cross-account IAM role can be sufficient, but there are some important considerations to keep in mind:
+
+VPC Endpoint: In the client account, you'll need to set up VPC endpoints for the necessary AWS services, including Systems Manager (SSM), SSM messages, EC2 messages, and S3. These endpoints allow your EC2 instances to communicate with AWS services without requiring internet access.
+
+Cross-account IAM Role: This role will allow the Patch Manager in the shared account to access and manage resources in the client account.
+
+Resource Sharing: If you're using a shared WSUS (for Windows) or Satellite server (for Linux) in the shared account, you'll need to ensure that the client account's EC2 instances can reach these servers. This might require additional network configuration, such as VPC peering or a Transit Gateway, depending on your specific network setup.
+
+Patch Repository: For Windows servers, WSUS can serve as the local patch repository. For Linux servers, you may need to set up a local repository that has internet access to receive regular updates, and then configure your EC2 instances to use this local repository.
+
+Patch Policy: If you're using AWS Organizations, you can set up a patch policy that applies across multiple accounts and regions, which can simplify your patching operations.
+
+While VPC peering or a Transit Gateway isn't strictly necessary for Patch Manager to function across accounts, they might be beneficial depending on your specific network architecture and requirements, especially if you need direct network connectivity between the shared account (where WSUS/Satellite is hosted) and the client account.
+
+Remember to ensure that all necessary Systems Manager prerequisites are met, including having the SSM Agent installed on your EC2 instances and configuring the required permissions.
+
+Lastly, for Amazon Linux instances, patching can work without internet access as AWS SSM uses an internal repository for patches. However, for other operating systems, you'll need to ensure access to the appropriate patch sources, either through internet access or a local repository.
+
+Sources
+can i use patch manager to patch my ec2 instances which are in no internet environment | AWS re:Post
+Patch policy configurations in Quick Setup - AWS Systems Manager
+How is VPC attached to TGW from a different account? | AWS re:Post
+AWS Patch manager using internal patch repo | AWS re:Post
